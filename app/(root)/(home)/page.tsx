@@ -4,7 +4,7 @@ import LocalSearch from "@/components/shared/search/LocalSearch";
 import Filter from "@/components/Filter";
 import { HomePageFilters } from "@/constants/filters";
 import HomeFilters from "@/components/home/HomeFilters";
-import QuestionCard from "@/components/shared/card/QuestionCard";
+import QuestionCard from "@/components/shared/cards/QuestionCard";
 import NoResult from "@/components/shared/NoResult";
 
 const questions = [
