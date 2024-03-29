@@ -67,7 +67,7 @@ export async function deleteUserById(params: DeleteUserParams) {
 
         // delete everything related to the user from other collections
         // get user question ids
-        const userQuestionIds = await Question.find({ author: clerkId }).select('_id').distinct('_id')
+        // const userQuestionIds = await Question.find({ author: clerkId }).select('_id').distinct('_id')
 
         // delete user questions
 
