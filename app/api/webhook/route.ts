@@ -9,10 +9,10 @@ export async function POST(req: Request) {
 
     // You can find this in the Clerk Dashboard -> Webhooks -> choose the webhook
     // TODO: Add your webhook secret to .env.local
-    const WEBHOOK_SECRET = process.env.WEBHOOK_SECRET
+    const NEXT_CLERK_WEBHOOK_SECRET = process.env.NEXT_CLERK_WEBHOOK_SECRET
 
-    if (!WEBHOOK_SECRET) {
-        throw new Error('Please add WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local')
+    if (!NEXT_CLERK_WEBHOOK_SECRET) {
+        throw new Error('Please add NEXT_CLERK_WEBHOOK_SECRET from Clerk Dashboard to .env or .env.local')
     }
 
     // Get the headers
@@ -54,6 +54,8 @@ export async function POST(req: Request) {
     // Get the ID and type
 
     const eventType = evt.type;
+    console.log(eventType);
+    
 
     if (eventType === 'user.created') {
         const { id, email_addresses, image_url, username, first_name, last_name } = evt.data;
