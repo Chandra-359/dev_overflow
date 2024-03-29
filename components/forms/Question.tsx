@@ -20,13 +20,18 @@ import { Editor } from "@tinymce/tinymce-react";
 import { Badge } from "../ui/badge";
 import Image from "next/image";
 import { createQuestion } from "@/lib/actions/question.action";
+import { useRouter, usePathname } from "next/navigation";
 
-const type:any = "create"
+const type: any = "create";
 
-const Question = () => {
-  const [isSubmitting, setisSubmitting] = useState(false)
+interface QuestionProps {
+  mongoUserId: string;
+}
 
-
+const Question = ({ mongoUserId }: QuestionProps) => {
+  const [isSubmitting, setisSubmitting] = useState(false);
+  const router = useRouter();
+  const pathname = usePathname();
 
   const editorRef = useRef(null);
   // 1. Define your form.
@@ -43,19 +48,27 @@ const Question = () => {
   async function onSubmit(values: z.infer<typeof QuestionsSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    setisSubmitting(true)
+    setisSubmitting(true);
 
     try {
       // make an async request to the API -> post a question
       // contains all form data
 
-      await createQuestion({})
+      // createQuestion if the API call equivalent
+      await createQuestion({
+        title: values.title,
+        content: values.explanation,
+        tags: values.tags,
+        author: JSON.parse(mongoUserId),
+        path: pathname,
+      });
 
       // navigate to home page
+      router.push("/");
     } catch (error) {
-      
-    }finally{
-      setisSubmitting(false)
+      console.log(error);
+    } finally {
+      setisSubmitting(false);
     }
     console.log(values);
   }
@@ -226,16 +239,16 @@ const Question = () => {
           )}
         />
         {/* Buttons */}
-        <Button type="submit" className="primary-gradient w-fit !text-light-900" disabled = {isSubmitting} >
-        {isSubmitting ? (
-          <>
-          {type === "edit" ? "Updating..." : "Submitting..."}
-          </>
-        ):(
-          <>
-          {type === "edit" ? "Update" : "Ask a Question"}
-          </>
-        )}
+        <Button
+          type="submit"
+          className="primary-gradient w-fit !text-light-900"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? (
+            <>{type === "edit" ? "Updating..." : "Submitting..."}</>
+          ) : (
+            <>{type === "edit" ? "Update" : "Ask a Question"}</>
+          )}
         </Button>
       </form>
     </Form>
