@@ -109,16 +109,16 @@ export interface GetTopInteractedTagsParams {
   limit?: number;
 }
 
-export interface CreateUserParams {
+export interface  CreateUserParams {
   clerkId: string;
   name: string;
   username: string;
   email: string;
-  picture: string;
+  avatar: string;
 }
 
 export interface GetUserByIdParams {
-  userId: string;
+  clerkUserId: string;
 }
 
 export interface GetAllUsersParams {
