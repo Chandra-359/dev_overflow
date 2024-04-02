@@ -5,3 +5,6 @@ export const QuestionsSchema = z.object({
    tags: z.array(z.string().min(1).max(15)).min(1, "Please add at least one tag").max(3,"Please add at most 3 tags"),
 });
 
+export const AnswerSchema = z.object({
+    answer: z.string().min(20),
+});

@@ -26,7 +26,7 @@ const QuestionCard = ({
   createdAt,
 }: QuestionProps) => {
   return (
-    <div className="card-wrapper rounded-[10px] p-9 sm:px-11">
+  <div className="card-wrapper rounded-[10px] p-9 sm:px-11">
     <div className="flex flex-col-reverse items-start justify-between gap-5 sm:flex-row">
       <div>
         <span
@@ -53,7 +53,7 @@ const QuestionCard = ({
 
     <div className="flex-between mt-6 w-full flex-wrap gap-3">
       <Metric
-        imgUrl="/assets/icons/avatar.svg"
+        imgUrl={author.avatar}
         alt="User"
         value={author.name}
         title={` - asked ${getTimestamp(createdAt)}`}

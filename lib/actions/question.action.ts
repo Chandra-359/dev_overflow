@@ -4,7 +4,7 @@ import { Question } from "@/database/question.model";
 import { connectToDatabase } from "../mongoose"
 import { Tag } from "@/database/tag.model";
 import { User } from "@/database/user.model";
-import { CreateQuestionParams, GetQuestionsParams } from "./shared.types";
+import { CreateQuestionParams, GetQuestionsParams,GetQuestionByIdParams } from "./shared.types";
 import { revalidatePath } from "next/cache";
 
 export async function createQuestion(params: CreateQuestionParams) {
@@ -38,6 +38,7 @@ export async function createQuestion(params: CreateQuestionParams) {
         // Create an interaction record for the user's ask_question action
 
         // Increment author's reputation by +5 for creating a question
+        await User.findByIdAndUpdate(author, { $inc: { reputation: 5 } });
 
         revalidatePath(path)
 
@@ -61,4 +62,23 @@ export async function getQuestions(params: GetQuestionsParams) {
         console.log(error);
         throw error
     }
+}
+
+export async function getQuestionById(params: GetQuestionByIdParams) {
+    try{
+        await connectToDatabase();
+
+        const {questionId} = params;
+        
+        const question = await Question.findById({_id:questionId})
+        .populate({path:'tags',model:Tag, select:'_id name'})
+        .populate({path:'author',model:User,select:'_id clerkId name avatar'})
+        console.log(question);
+
+        return {question}
+    }catch(error){
+        console.log(error);
+        throw error;
+    }
+
 }

@@ -13,7 +13,7 @@ export interface IQuestion extends Document {
     createdAt: Date;
 }
 
-const questionSchema = new Schema<IQuestion>({
+const QuestionSchema = new Schema<IQuestion>({
     title: {
         type: String,
         required: true,
@@ -61,4 +61,4 @@ const questionSchema = new Schema<IQuestion>({
 })
 
 
-export const Question = models.Question || model<IQuestion>("Question", questionSchema)
+export const Question = models.Question || model<IQuestion>("Question", QuestionSchema)
