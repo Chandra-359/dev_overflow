@@ -23,6 +23,7 @@
     "eslint-config-standard": "^17.1.0",
     "eslint-plugin-tailwindcss": "^3.15.1",
     "html-react-parser": "^5.1.10",
+    "kerberos": "^2.1.0",
     "lucide-react": "^0.363.0",
     "mongodb": "^6.5.0",
     "mongoose": "^8.2.3",
