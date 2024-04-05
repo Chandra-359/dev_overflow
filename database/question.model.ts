@@ -46,12 +46,10 @@ const QuestionSchema = new Schema<IQuestion>({
     ],
     author: {
         type: Schema.Types.ObjectId,
-        required: true,
         ref: "User",
     },
     answers: [{
         type: Schema.Types.ObjectId,
-        default: [],
         ref: "Answer"
     }],
     createdAt: {

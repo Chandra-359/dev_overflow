@@ -13,13 +13,13 @@ import { redirect } from "next/navigation";
 import AllAnswers from "@/components/shared/AllAnswers";
 import Votes from "@/components/shared/Votes";
 
-interface Paramprops {
-  params: {
-    _id: string;
-  };
+interface ParamProp{
+  params:{
+    _id:string
+  }
 }
 
-const Page = async ({ params }: Paramprops) => {
+const Page = async ({ params }: ParamProp) => {
   // use searchParams to get the filtering queries
   //  console.log(params);
 

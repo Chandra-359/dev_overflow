@@ -1,13 +1,16 @@
 "use client";
 import React from "react";
-import { SignedOut } from "@clerk/nextjs";
+import { SignedOut, useAuth } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import { sidebarLinks } from "@/constants";
 import { usePathname } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 
+
 const LeftSideBar = () => {
+  const {userId} = useAuth()
+
   const NavContent = () => {
     const pathname = usePathname();
     return (
@@ -16,6 +19,15 @@ const LeftSideBar = () => {
           const isActive =
             (pathname.includes(item.route) && item.route.length > 1) ||
             pathname === item.route;
+
+            // TODO -> profile/id
+            if(item.route === "/profile") {
+              if(userId){
+                item.route = `/profile/${userId}`
+              }else{
+                return null
+              }
+            }
 
           return (
             <React.Fragment key={item.route}>
