@@ -7,15 +7,27 @@ import { CreateUserParams, GetUserByIdParams, UpdateUserParams, DeleteUserParams
 import { revalidatePath } from "next/cache"
 import { Tag } from "@/database/tag.model"
 import { Answer } from "@/database/answer.model"
+import { FilterQuery } from "mongoose"
 // import { FilterQuery } from "mongoose"
 
 export async function getAllUsers(params: GetAllUsersParams) {
     try {
         connectToDatabase();
 
+        const { searchQuery } = params;
+
+        const query: FilterQuery<typeof User> = {};
+
+        if (searchQuery) {
+            query.$or = [
+                { name: { $regex: new RegExp(searchQuery, "i") } },
+                { username: { $regex: new RegExp(searchQuery, "i") } }
+            ]
+        }
+
         // const {page  =1, pageSize=20, filter, searchQuery} = params;
 
-        const allUsers = await User.find({}).sort({ createdAt: -1 });
+        const allUsers = await User.find(query).sort({ createdAt: -1 });
         // [{
         //     _id: new ObjectId('660778df0a921eb2cf9d2877'),
         //     clerkId: 'user_2eOBPxxAfLEOGjFlQ3imPAXOEKt',
@@ -150,15 +162,22 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     try {
         connectToDatabase();
 
-        const { clerkId } = params;
+        const { clerkId, searchQuery } = params;
 
-        // const query:FilterQuery<typeof Question> = searchQuery ?{title :{$regex: new RegExp(searchQuery, "i")}} : {},
+        const query:FilterQuery<typeof Question> = {}
+
+        if(searchQuery){
+            query.$or=[
+                {title: { $regex: new RegExp(searchQuery, "i") }},
+                {content: { $regex: new RegExp(searchQuery, "i") }},
+            ]
+        }
 
         const user = await User.findOne({ clerkId })
             // this populate will only populated Question collection not the tags or other array details
             .populate({
                 path: "saved",
-                // match: query,
+                match: query,
                 options:
                 {
                     sort: { "createdAt": -1 }

@@ -5,8 +5,9 @@ import QuestionCard from "@/components/shared/cards/QuestionCard";
 import NoResult from "@/components/shared/NoResult";
 import { getSavedQuestions } from "@/lib/actions/user.action";
 import { auth } from "@clerk/nextjs";
+import { SearchParamsProps } from "@/types";
 
-export default async function Home() {
+export default async function Home({searchParams}: SearchParamsProps) {
   const { userId } = auth();
 
   if (!userId) {
@@ -14,6 +15,7 @@ export default async function Home() {
   }
 
   const result = await getSavedQuestions({
+    searchQuery: searchParams.q,
     clerkId: userId,
   });
 
@@ -26,7 +28,7 @@ export default async function Home() {
        max-sm:flex-col sm:items-center"
       >
         <LocalSearch
-          route="/"
+          route="/collection"
           iconPosition="left"
           iconSrc="/assets/icons/search.svg"
           placeholder="Search for questions"

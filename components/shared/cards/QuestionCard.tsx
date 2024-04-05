@@ -10,7 +10,7 @@ interface QuestionProps {
   _id: string;
   title: string;
   tags: { _id: string; name: string }[];
-  author: { _id: string; name: string; avatar: string; clerkId?: string};
+  author: { _id: string; name: string; avatar: string; clerkId?: string };
   upvotes: string[];
   views: number;
   answers: Array<object>;
@@ -53,13 +53,9 @@ const QuestionCard = ({
 
         <SignedIn>
           {showActionButtons && (
-            <EditDeleteAction
-            type = "Question"
-            itemId = {JSON.stringify(_id)}
-            />
+            <EditDeleteAction type="Question" itemId={JSON.stringify(_id)} />
           )}
         </SignedIn>
-
       </div>
       <div className="mt-3.5 flex flex-wrap gap-2">
         {tags.map((tag) => (

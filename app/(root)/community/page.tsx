@@ -5,9 +5,12 @@ import Filter from "@/components/Filter";
 import { UserFilters } from "@/constants/filters";
 import UserCard from "@/components/shared/cards/UserCard";
 import NoResult from "@/components/shared/NoResult";
+import { SearchParamsProps } from "@/types";
 
-const Page = async () => {
-  const result = await getAllUsers({});
+const Page = async ({searchParams}: SearchParamsProps) => {
+  const result = await getAllUsers({
+    searchQuery: searchParams.q,
+  });
 
   return (
     <>

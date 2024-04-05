@@ -65,7 +65,7 @@ const Question = ({ mongoUserId, type, questionDetails }: QuestionProps) => {
     try {
       if (type === "Edit") {
         await editQuestion({
-          questionId: parsedQuestionDetails.question._id,
+          questionId: parsedQuestionDetails?.question._id,
           title: values.title,
           content: values.explanation,
           path: pathname,
@@ -174,7 +174,7 @@ const Question = ({ mongoUserId, type, questionDetails }: QuestionProps) => {
                   }}
                   onBlur={field.onBlur}
                   onEditorChange={(content) => field.onChange(content)}
-                  initialValue={parsedQuestionDetails.question.content || ""}
+                  initialValue={parsedQuestionDetails?.question.content || ""}
                   init={{
                     height: 350,
                     menubar: false,
