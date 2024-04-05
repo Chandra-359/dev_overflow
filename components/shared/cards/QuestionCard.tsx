@@ -10,7 +10,7 @@ interface QuestionProps {
   _id: string;
   title: string;
   tags: { _id: string; name: string }[];
-  author: { _id: string; name: string; avatar: string; clerkId: string};
+  author: { _id: string; name: string; avatar: string; clerkId?: string};
   upvotes: string[];
   views: number;
   answers: Array<object>;
