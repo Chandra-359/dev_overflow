@@ -5,7 +5,7 @@ import { GetTopInteractedTagsParams, GetAllTagsParams, GetQuestionsByTagIdParams
 import { FilterQuery } from "mongoose";
 import { User } from "@/database/user.model";
 import { Question } from "@/database/question.model";
-import { ITag, Tag } from "@/database/tag.model";
+import { Tag } from "@/database/tag.model";
 
 
 
