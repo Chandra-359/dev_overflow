@@ -1,11 +1,13 @@
 "use server"
 
-import { User } from "@/database/user.model";
 import { connectToDatabase } from "../mongoose";
 import { GetTopInteractedTagsParams, GetAllTagsParams, GetQuestionsByTagIdParams } from "./shared.types";
-import { ITag, Tag } from "@/database/tag.model";
 import { FilterQuery } from "mongoose";
+import { User } from "@/database/user.model";
 import { Question } from "@/database/question.model";
+import { ITag, Tag } from "@/database/tag.model";
+
+
 
 
 export async function getAllTags(params: GetAllTagsParams) {
@@ -102,7 +104,7 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
 
         const { tagId, page = 1, pageSize = 10, searchQuery } = params;
 
-        const tagFilter: FilterQuery<ITag> = { _id: tagId };
+        const tagFilter: FilterQuery<typeof Tag> = { _id: tagId };
 
         const tag = await Tag.findOne(tagFilter).populate({
             path: "questions",
@@ -114,8 +116,8 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
                 limit: pageSize
             },
             populate: [
-                { path: "tags", model: Tag, select: "_id name" },
-                { path: "author", model: User, select: '_id clerkId name avatar'}
+                { path: "author", model: User},
+                { path: "tags", model: Tag}
             ]
         })
 

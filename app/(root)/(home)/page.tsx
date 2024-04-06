@@ -16,7 +16,7 @@ export default async function Home({searchParams}: SearchParamsProps){
     searchQuery: searchParams.q,
     filter: searchParams.filter,
   });
-  // console.log(result.questions[0].author);
+  console.log(`home page questions: ${result.questions[0].upvotes}`);
 
   return (
     <>
