@@ -6,11 +6,14 @@ import { UserFilters } from "@/constants/filters";
 import UserCard from "@/components/shared/cards/UserCard";
 import NoResult from "@/components/shared/NoResult";
 import { SearchParamsProps } from "@/types";
+import Pagination from "@/components/shared/Pagination";
 
-const Page = async ({searchParams}: SearchParamsProps) => {
+const Page = async ({ searchParams }: SearchParamsProps) => {
   const result = await getAllUsers({
     searchQuery: searchParams.q,
     filter: searchParams.filter,
+    // convert the string to number
+    page: searchParams.page ? +searchParams.page : 1,
   });
 
   return (
@@ -34,14 +37,9 @@ const Page = async ({searchParams}: SearchParamsProps) => {
 
       <section className="mt-12 flex flex-wrap gap-4">
         {result.allUsers.length > 0 ? (
-          result.allUsers.map((user) => (
-            <UserCard
-              key={user._id}
-              user={user}
-            />
-          ))
+          result.allUsers.map((user) => <UserCard key={user._id} user={user} />)
         ) : (
-            <NoResult
+          <NoResult
             title="No users yet"
             description="Sign up now to join the community!"
             link="/sign-up"
@@ -49,6 +47,13 @@ const Page = async ({searchParams}: SearchParamsProps) => {
           />
         )}
       </section>
+
+      <div className="mt-10">
+        <Pagination
+          pageNumber={searchParams?.page ? +searchParams.page : 1}
+          isNext={result.isNext}
+        />
+      </div>
     </>
   );
 };

@@ -2,6 +2,7 @@ import { getUserQuestions } from "@/lib/actions/user.action";
 import React from "react";
 import QuestionCard from "./cards/QuestionCard";
 import { SearchParamsProps } from "@/types";
+import Pagination from "./Pagination";
 
 interface QuestionTabProps extends SearchParamsProps {
   userId: string;
@@ -35,6 +36,13 @@ const QuestionTab = async ({
           createdAt={question.createdAt}
         />
       ))}
+
+      <div className="mt-10">
+        <Pagination
+          pageNumber={searchParams?.page ? +searchParams.page : 1}
+          isNext={result.isNext}
+        />
+      </div>
     </div>
   );
 };

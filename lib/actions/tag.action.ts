@@ -14,7 +14,9 @@ export async function getAllTags(params: GetAllTagsParams) {
     try {
         connectToDatabase();
 
-        const {searchQuery, filter} = params;
+        const {searchQuery, filter, page=1, pageSize=10} = params;
+
+        const skipAmount = (page - 1) * pageSize;
 
         let sortOptions = {};
 
@@ -47,7 +49,10 @@ export async function getAllTags(params: GetAllTagsParams) {
 
 
 
-        const tags = await Tag.find(query).sort(sortOptions)
+        const tags = await Tag.find(query)
+            .skip(skipAmount)
+            .limit(pageSize)
+            .sort(sortOptions)
 
         // [
         //     {
@@ -66,8 +71,12 @@ export async function getAllTags(params: GetAllTagsParams) {
         if (!tags) throw new Error("Tags not found");
         // console.log(tags);
 
+        const totalTags = await Tag.countDocuments(query);
 
-        return { tags }
+        const isNext = totalTags > skipAmount + tags.length;
+
+
+        return { tags, isNext }
 
     } catch (error) {
         console.log(error);
@@ -104,6 +113,8 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
 
         const { tagId, page = 1, pageSize = 10, searchQuery } = params;
 
+        const skipAmount = (page - 1) * pageSize;
+
         const tagFilter: FilterQuery<typeof Tag> = { _id: tagId };
 
         const tag = await Tag.findOne(tagFilter).populate({
@@ -112,8 +123,8 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
             match: searchQuery ? { title: { $regex: new RegExp(searchQuery, "i") } } : {},
             options: {
                 sort: { "createdAt": -1 },
-                skip: (page - 1) * pageSize,
-                limit: pageSize
+                skip: skipAmount,
+                limit: pageSize+1
             },
             populate: [
                 { path: "author", model: User},
@@ -126,10 +137,11 @@ export async function getQuestionsByTagId(params: GetQuestionsByTagIdParams) {
         }
         // console.log(tag);
 
+        const isNext = tag.questions.length > pageSize;
 
         const questions = tag.questions;
 
-        return { tagTitle: tag.name, questions }
+        return { tagTitle: tag.name, questions, isNext }
 
 
 
