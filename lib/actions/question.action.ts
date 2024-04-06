@@ -4,8 +4,11 @@ import { Question } from "@/database/question.model";
 import { connectToDatabase } from "../mongoose"
 import { Tag } from "@/database/tag.model";
 import { User } from "@/database/user.model";
-import { CreateQuestionParams, GetQuestionsParams, GetQuestionByIdParams, QuestionVoteParams } from "./shared.types";
+import { CreateQuestionParams, GetQuestionsParams, GetQuestionByIdParams, QuestionVoteParams, DeleteQuestionParams, EditQuestionParams } from "./shared.types";
 import { revalidatePath } from "next/cache";
+import { Answer } from "@/database/answer.model";
+import { Interaction } from "@/database/interaction.model";
+import { FilterQuery } from "mongoose";
 
 export async function createQuestion(params: CreateQuestionParams) {
     try {
@@ -52,10 +55,39 @@ export async function getQuestions(params: GetQuestionsParams) {
     try {
         connectToDatabase();
 
-        const questions = await Question.find()
+        const { searchQuery, filter } = params;
+
+        const query: FilterQuery<typeof Question> = {};
+
+        if(searchQuery){
+            query.$or=[
+                {title: { $regex: new RegExp(searchQuery, "i") }},
+                {content: { $regex: new RegExp(searchQuery, "i") }},
+            ]
+        }
+
+        let sortOptions = {};
+
+        switch (filter) {
+            case "newest":
+              sortOptions = { createdAt: - 1 }
+              break;
+            case "frequent":
+              sortOptions = { views: -1 }
+              break;
+            case "unanswered":
+              query.answers = { $size: 0 }
+              break;
+            default:
+              break;
+          }
+
+        // Fetch Recommened Questions
+
+        const questions = await Question.find(query)
             .populate({ path: 'author', model: User })
             .populate({ path: 'tags', model: Tag })
-            .sort({ createdAt: -1 })
+            .sort(sortOptions)
 
         return { questions };
     } catch (error) {
@@ -105,7 +137,7 @@ export async function upvoteQuestion(params: QuestionVoteParams) {
             throw new Error('Question not found')
         }
         // console.log(`log from question.action.ts from upvoteQuestion ${question}`);
-        
+
         revalidatePath(path)
 
     } catch (error) {
@@ -115,7 +147,7 @@ export async function upvoteQuestion(params: QuestionVoteParams) {
 }
 
 export async function downvoteQuestion(params: QuestionVoteParams) {
-    try{
+    try {
         await connectToDatabase();
 
         const { questionId, userId, hasupVoted, hasdownVoted, path } = params;
@@ -137,10 +169,68 @@ export async function downvoteQuestion(params: QuestionVoteParams) {
         }
 
         revalidatePath(path)
-    }catch(error){
+    } catch (error) {
         console.log(error);
         throw error;
     }
 }
 
+export async function deleteQuestion(params: DeleteQuestionParams) {
+    try {
+        await connectToDatabase();
 
+        const { questionId, path } = params;
+        console.log(questionId);
+        
+
+        await Question.deleteOne({_id: questionId});
+
+        // Delete related comments and answers as well
+        await Answer.deleteMany({question: questionId});
+        await Interaction.deleteMany({question: questionId})
+        await Tag.updateMany({questions: questionId}, {$pull: {questions: questionId}})
+
+        revalidatePath(path)
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+export async function editQuestion(params: EditQuestionParams) {
+    try {
+      connectToDatabase();
+  
+      const { questionId, title, content, path } = params;
+  
+      const question = await Question.findById(questionId).populate("tags");
+  
+      if(!question) {
+        throw new Error("Question not found");
+      }
+  
+      question.title = title;
+      question.content = content;
+  
+      await question.save();
+  
+      revalidatePath(path);
+    } catch (error) {
+      console.log(error);
+    }
+}
+
+export async function getHotQuestions() {
+    try {
+        connectToDatabase();
+
+        const hotQuestions = await Question.find({})
+            .sort({ views: -1, upvotes: -1 })
+            .limit(5)
+
+        return hotQuestions;
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

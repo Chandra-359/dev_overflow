@@ -12,14 +12,15 @@ import { getUserById } from "@/lib/actions/user.action";
 import { redirect } from "next/navigation";
 import AllAnswers from "@/components/shared/AllAnswers";
 import Votes from "@/components/shared/Votes";
+import { SearchParamsProps } from "@/types";
 
-interface Paramprops {
-  params: {
-    _id: string;
-  };
+interface ParamProp extends SearchParamsProps{
+  params:{
+    _id:string
+  }
 }
 
-const Page = async ({ params }: Paramprops) => {
+const Page = async ({ params, searchParams }: ParamProp) => {
   // use searchParams to get the filtering queries
   //  console.log(params);
 
@@ -135,6 +136,8 @@ const Page = async ({ params }: Paramprops) => {
       questionId = {result.question._id}
       userId = {mongoUser._id}
       totalAnswers = {result.question.answers.length}
+      page = {searchParams?.page}
+      filter = {searchParams?.filter}
       />
 
       <Answer

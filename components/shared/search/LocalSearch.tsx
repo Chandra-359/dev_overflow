@@ -1,7 +1,10 @@
 "use client";
-import React from "react";
+
+import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import { Input } from "@/components/ui/input";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
+import { formUrlQuery, removeKeysFromQuery } from "@/lib/utils";
 
 interface LocalSearchProps {
   route: string;
@@ -18,6 +21,50 @@ const LocalSearch = ({
   placeholder,
   otherClasses,
 }: LocalSearchProps) => {
+  const router = useRouter();
+  const pathname = usePathname();
+  const searchParams = useSearchParams();
+
+  const query = searchParams.get("q");
+
+  const [search, setSearch] = useState(query || "");
+
+  useEffect(()=>{
+    const delayDebounceFn = setTimeout(()=>{
+      if(search){
+        const newUrl = formUrlQuery({
+          params: searchParams.toString(),
+          key:'q',
+          value:search
+        })
+
+        // console.log(newUrl);
+        // /?q=njknjmo
+        router.push(newUrl, {scroll:false})
+      }else{
+        // console.log(route, pathname);
+        let newUrl='/'
+        if(route === pathname){
+        
+        newUrl = removeKeysFromQuery({
+          params: searchParams.toString(),
+          keys:['q']
+        })
+      }
+
+        router.push(newUrl, {scroll:false})
+      
+      }
+    },300)
+
+
+    return () => clearTimeout(delayDebounceFn)
+
+  },[search,router,pathname,query,searchParams,route])
+  
+  
+
+
   return (
     <div className="relative w-full">
       <div
@@ -36,9 +83,9 @@ const LocalSearch = ({
         <Input
           type="text"
           placeholder={placeholder}
-          value=""
-          onChange={() => {}}
-          className="paragraph-regular no-focus placeholder background-light800_darkgradient border-none shadow-none outline-none"
+          value={search}
+          onChange={(e) => {setSearch(e.target.value)}}
+          className="paragraph-regular no-focus placeholder text-dark400_light700 border-none bg-transparent shadow-none outline-none"
         />
 
         {iconPosition === "right" && (

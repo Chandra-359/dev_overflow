@@ -3,18 +3,49 @@
 import { User } from "@/database/user.model"
 import { Question } from "@/database/question.model"
 import { connectToDatabase } from "../mongoose"
-import { CreateUserParams, GetUserByIdParams, UpdateUserParams, DeleteUserParams, GetAllUsersParams, ToggleSaveQuestionParams, GetSavedQuestionsParams } from "./shared.types"
+import { CreateUserParams, GetUserByIdParams, UpdateUserParams, DeleteUserParams, GetAllUsersParams, ToggleSaveQuestionParams, GetSavedQuestionsParams, GetUserStatsParams } from "./shared.types"
 import { revalidatePath } from "next/cache"
 import { Tag } from "@/database/tag.model"
+import { Answer } from "@/database/answer.model"
+import { FilterQuery } from "mongoose"
 // import { FilterQuery } from "mongoose"
 
 export async function getAllUsers(params: GetAllUsersParams) {
     try {
         connectToDatabase();
 
+        const { searchQuery, filter } = params;
+
+        const query: FilterQuery<typeof User> = {};
+
+        let sortOptions = {};
+
+        switch (filter) {
+            case "new_users":
+                sortOptions = { joinedAt: -1 }
+                break;
+            case "old_users":
+                sortOptions = { joinedAt: 1 }
+                break;
+            case "top_contributors":
+                sortOptions = { reputation: -1 }
+                break;
+
+            default:
+                break;
+        }
+
+
+        if (searchQuery) {
+            query.$or = [
+                { name: { $regex: new RegExp(searchQuery, "i") } },
+                { username: { $regex: new RegExp(searchQuery, "i") } }
+            ]
+        }
+
         // const {page  =1, pageSize=20, filter, searchQuery} = params;
 
-        const allUsers = await User.find({}).sort({ createdAt: -1 });
+        const allUsers = await User.find(query).sort(sortOptions);
         // [{
         //     _id: new ObjectId('660778df0a921eb2cf9d2877'),
         //     clerkId: 'user_2eOBPxxAfLEOGjFlQ3imPAXOEKt',
@@ -149,25 +180,55 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     try {
         connectToDatabase();
 
-        const { clerkId } = params;
+        const { clerkId, searchQuery,filter } = params;
 
-        // const query:FilterQuery<typeof Question> = searchQuery ?{title :{$regex: new RegExp(searchQuery, "i")}} : {},
+        const query: FilterQuery<typeof Question> = {}
+
+        let sortOptions = {}
+
+        switch (filter) {
+            case "most_recent":
+              sortOptions = { createdAt: -1 }
+              break;
+            case "oldest":
+              sortOptions = { createdAt: 1 } // ascending order
+              break;
+            case "most_voted":
+              sortOptions = { upvotes: -1 } // descending order
+              break;
+            case "most_viewed":
+              sortOptions = { views: -1 }
+              break;
+            case "most_answered":
+              sortOptions = { answers: -1 }
+              break;
+          
+            default:
+              break;
+          }        
+
+        if (searchQuery) {
+            query.$or = [
+                { title: { $regex: new RegExp(searchQuery, "i") } },
+                { content: { $regex: new RegExp(searchQuery, "i") } },
+            ]
+        }
 
         const user = await User.findOne({ clerkId })
             // this populate will only populated Question collection not the tags or other array details
             .populate({
                 path: "saved",
-                // match: query,
+                match: query,
                 options:
                 {
-                    sort: { "createdAt": -1 }
+                    sort: sortOptions
                 },
                 // populating to get the details in the question collection
-                populate: 
-                [ 
-                    { path: "tags", model: Tag, select: "_id name" },
-                    { path: "author", model: User, select: "_id clerkId name avatar" },
-                ]
+                populate:
+                    [
+                        { path: "tags", model: Tag, select: "_id name" },
+                        { path: "author", model: User, select: "_id clerkId name avatar" },
+                    ]
 
             })
 
@@ -176,14 +237,88 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
         }
 
         const savedQuestions = user.saved;
-        console.log(savedQuestions);
-        
-        return {questions: savedQuestions}
+        // console.log(savedQuestions);
+
+        return { questions: savedQuestions }
 
 
 
     } catch (error) {
-    console.log(error);
-    throw error
+        console.log(error);
+        throw error
+    }
 }
+
+export async function getUserInfo(params: GetUserByIdParams) {
+    try {
+        connectToDatabase();
+
+        const { clerkUserId } = params;
+
+        const user = await User.findOne({ clerkId: clerkUserId })
+
+        if (!user) {
+            throw new Error("User not found")
+        }
+
+        const totalQuestions = await Question.countDocuments({ author: user._id })
+        const totalAnswers = await Answer.countDocuments({ author: user._id })
+
+        return { user, totalQuestions, totalAnswers }
+    } catch (error) {
+        console.log(error);
+        throw error
+    }
+}
+
+export async function getUserQuestions(params: GetUserStatsParams) {
+    try {
+        connectToDatabase();
+
+        const { userId, page = 1, pageSize = 10 } = params;
+
+        const totalQuestions = await Question.countDocuments({ author: userId })
+
+        const skip = (page - 1) * pageSize
+
+        const userQuestions = await Question.find({ author: userId })
+            .sort({ views: -1, upvotes: -1 })
+            .skip(skip)
+            .limit(pageSize)
+            .populate({ path: 'tags', model: Tag, select: '_id name' })
+            .populate({ path: 'author', model: User, select: '_id clerkId name avatar' })
+
+        return { totalQuestions, userQuestions }
+
+    } catch (error) {
+        console.log(error);
+        throw error
+    }
+
+}
+
+export async function getUserAnswers(params: GetUserStatsParams) {
+    try {
+        connectToDatabase();
+
+        const { userId, page = 1, pageSize = 10 } = params;
+
+        const totalAnswers = await Answer.countDocuments({ author: userId })
+
+        const skip = (page - 1) * pageSize
+
+        const userAnswers = await Answer.find({ author: userId })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(pageSize)
+            .populate({ path: 'question', model: Question, select: '_id title' })
+            .populate({ path: 'author', model: User, select: '_id clerkId name avatar' })
+
+        return { totalAnswers, userAnswers }
+
+    } catch (error) {
+        console.log(error);
+        throw error
+    }
+
 }

@@ -2,23 +2,13 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import InfoTags from "@/components/shared/InfoTags";
+import { getHotQuestions } from "@/lib/actions/question.action";
+import { getPopularTags } from "@/lib/actions/tag.action";
 
-const RightSideBar = () => {
-  const questions = [
-    { _id: "1", title: "How to improve web performance?" },
-    { _id: "2", title: "What's new in React 18?" },
-    { _id: "3", title: "How to center a div in CSS?" },
-    { _id: "4", title: "What are hooks in React?" },
-    { _id: "5", title: "How to fetch data in React?" },
-  ];
 
-  const tags = [
-    { _id: "1", name: "JavaScript", totalQuestions: 5 },
-    { _id: "2", name: "React", totalQuestions: 10 },
-    { _id: "3", name: "TypeScript", totalQuestions: 3 },
-    { _id: "4", name: "Node", totalQuestions: 7 },
-    { _id: "5", name: "CSS", totalQuestions: 4 },
-  ];
+const RightSideBar = async () => {
+  const questions = await getHotQuestions();
+  const tags = await getPopularTags();
 
   return (
     <>
@@ -27,7 +17,7 @@ const RightSideBar = () => {
         <div className="mt-7 flex w-full flex-col gap-[30px]">
           {questions.map((question) => (
             <Link
-              href={`/questions/${question._id}`}
+              href={`/question/${question._id}`}
               key={question._id}
               className="flex cursor-pointer items-center justify-between gap-4"
             >

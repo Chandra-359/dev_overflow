@@ -1,5 +1,17 @@
 import { type ClassValue, clsx } from "clsx";
 import { twMerge } from "tailwind-merge";
+import qs from "query-string"
+
+interface UrlQueryParams {
+  params: string;
+  key: string;
+  value: string | null;
+}
+
+interface RemoveUrlQueryParams {
+  params: string;
+  keys: string[];
+}
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
@@ -51,3 +63,49 @@ export const formatAndDivideNumber = (number: number): string => {
     return `${number}`;
   }
 };
+
+export const getJoinedDate = (date: Date): string => {
+  // Extract the month and year from the Date object
+  const month = date.toLocaleString('default', { month: 'long' });
+  const year = date.getFullYear();
+
+  // Create the joined date string (e.g., "September 2023")
+  const joinedDate = `${month} ${year}`;
+
+  return joinedDate;
+}
+
+export const formUrlQuery = ({params, key, value}:UrlQueryParams)=>{
+  const currentUrl = qs.parse(params)
+  // console.log(currentUrl);
+  // {filter: 'unanswered'}
+  
+
+  currentUrl[key] = value
+
+  return qs.stringifyUrl({
+    url: window.location.pathname,
+    query: currentUrl,
+  },
+  {
+    skipNull: true,
+  }
+)
+}
+
+export const removeKeysFromQuery = ({params, keys}:RemoveUrlQueryParams)=>{
+  const currentUrl = qs.parse(params)
+
+  keys.forEach(key=>{
+    delete currentUrl[key]
+  })
+
+  return qs.stringifyUrl({
+    url: window.location.pathname,
+    query: currentUrl,
+  },
+  {
+    skipNull: true,
+  }
+)
+}
