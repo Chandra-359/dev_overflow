@@ -2,7 +2,7 @@
 
 import { Answer } from "@/database/answer.model";
 import { connectToDatabase } from "../mongoose"
-import { AnswerVoteParams, CreateAnswerParams,DeleteAnswerParams,GetAnswersParams } from "./shared.types";
+import { AnswerVoteParams, CreateAnswerParams, DeleteAnswerParams, GetAnswersParams } from "./shared.types";
 import { User } from "@/database/user.model";
 import { Question } from "@/database/question.model";
 import { revalidatePath } from "next/cache";
@@ -34,18 +34,42 @@ export async function createAnswer(params: CreateAnswerParams) {
 }
 
 export async function getAnswersByQuestionId(params: GetAnswersParams) {
-    try{
+    try {
         connectToDatabase();
-        
-        const {questionId} = params;
+
+        const { questionId, sortBy} = params;
+
         
 
-        const answers = await Answer.find({ question: questionId }).populate("author", "_id clerkId name avatar").sort({ createdAt: -1 })
+        let sortOptions = {};
+
+        switch (sortBy) {
+            case "highestUpvotes":
+                sortOptions = { upvotes: -1 }
+                break;
+            case "lowestUpvotes":
+                sortOptions = { upvotes: 1 }
+                break;
+            case "recent":
+                sortOptions = { createdAt: -1 }
+                break;
+            case "old":
+                sortOptions = { createdAt: 1 }
+                break;
+
+            default:
+                break;
+        }
+
+
+
+
+        const answers = await Answer.find({ question: questionId }).populate("author", "_id clerkId name avatar").sort(sortOptions)
         // console.log(answers);
-        
-        
-        return {answers};
-    }catch(error){
+
+
+        return { answers };
+    } catch (error) {
         console.log(error);
         throw error;
     }
@@ -73,7 +97,7 @@ export async function upvoteAnswer(params: AnswerVoteParams) {
             throw new Error('Answer not found')
         }
         // console.log(`log from answer.action.ts from upvoteAnswer ${answer}`);
-        
+
         revalidatePath(path)
 
     } catch (error) {
@@ -104,7 +128,7 @@ export async function downvoteAnswer(params: AnswerVoteParams) {
             throw new Error('Answer not found')
         }
         // console.log(`log from answer.action.ts from downvoteAnswer ${answer}`);
-        
+
         revalidatePath(path)
 
     } catch (error) {
@@ -125,16 +149,16 @@ export async function deleteAnswer(params: DeleteAnswerParams) {
         }
         // console.log(`answer: ${answer}`);
         // console.log(answerId);
-        
+
         // console.log(`answer.question: ${answer.question}`)
-        
+
 
         await Answer.deleteOne({ _id: answerId });
-        await Question.updateMany({ _id: answer.question }, { $pull: { answers: answerId }});
+        await Question.updateMany({ _id: answer.question }, { $pull: { answers: answerId } });
 
         // const updatedQuestion = await Question.findById(answer.question);
         // console.log(`updated question: ${updatedQuestion}`);
-        
+
         await Interaction.deleteMany({ answer: answerId });
 
         revalidatePath(path)

@@ -14,9 +14,27 @@ export async function getAllUsers(params: GetAllUsersParams) {
     try {
         connectToDatabase();
 
-        const { searchQuery } = params;
+        const { searchQuery, filter } = params;
 
         const query: FilterQuery<typeof User> = {};
+
+        let sortOptions = {};
+
+        switch (filter) {
+            case "new_users":
+                sortOptions = { joinedAt: -1 }
+                break;
+            case "old_users":
+                sortOptions = { joinedAt: 1 }
+                break;
+            case "top_contributors":
+                sortOptions = { reputation: -1 }
+                break;
+
+            default:
+                break;
+        }
+
 
         if (searchQuery) {
             query.$or = [
@@ -27,7 +45,7 @@ export async function getAllUsers(params: GetAllUsersParams) {
 
         // const {page  =1, pageSize=20, filter, searchQuery} = params;
 
-        const allUsers = await User.find(query).sort({ createdAt: -1 });
+        const allUsers = await User.find(query).sort(sortOptions);
         // [{
         //     _id: new ObjectId('660778df0a921eb2cf9d2877'),
         //     clerkId: 'user_2eOBPxxAfLEOGjFlQ3imPAXOEKt',
@@ -162,14 +180,37 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
     try {
         connectToDatabase();
 
-        const { clerkId, searchQuery } = params;
+        const { clerkId, searchQuery,filter } = params;
 
-        const query:FilterQuery<typeof Question> = {}
+        const query: FilterQuery<typeof Question> = {}
 
-        if(searchQuery){
-            query.$or=[
-                {title: { $regex: new RegExp(searchQuery, "i") }},
-                {content: { $regex: new RegExp(searchQuery, "i") }},
+        let sortOptions = {}
+
+        switch (filter) {
+            case "most_recent":
+              sortOptions = { createdAt: -1 }
+              break;
+            case "oldest":
+              sortOptions = { createdAt: 1 } // ascending order
+              break;
+            case "most_voted":
+              sortOptions = { upvotes: -1 } // descending order
+              break;
+            case "most_viewed":
+              sortOptions = { views: -1 }
+              break;
+            case "most_answered":
+              sortOptions = { answers: -1 }
+              break;
+          
+            default:
+              break;
+          }        
+
+        if (searchQuery) {
+            query.$or = [
+                { title: { $regex: new RegExp(searchQuery, "i") } },
+                { content: { $regex: new RegExp(searchQuery, "i") } },
             ]
         }
 
@@ -180,7 +221,7 @@ export async function getSavedQuestions(params: GetSavedQuestionsParams) {
                 match: query,
                 options:
                 {
-                    sort: { "createdAt": -1 }
+                    sort: sortOptions
                 },
                 // populating to get the details in the question collection
                 populate:

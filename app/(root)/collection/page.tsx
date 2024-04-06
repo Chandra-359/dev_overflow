@@ -16,6 +16,7 @@ export default async function Home({searchParams}: SearchParamsProps) {
 
   const result = await getSavedQuestions({
     searchQuery: searchParams.q,
+    filter: searchParams.filter,
     clerkId: userId,
   });
 

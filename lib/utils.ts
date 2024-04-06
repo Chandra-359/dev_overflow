@@ -77,6 +77,9 @@ export const getJoinedDate = (date: Date): string => {
 
 export const formUrlQuery = ({params, key, value}:UrlQueryParams)=>{
   const currentUrl = qs.parse(params)
+  // console.log(currentUrl);
+  // {filter: 'unanswered'}
+  
 
   currentUrl[key] = value
 
