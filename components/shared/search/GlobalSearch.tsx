@@ -48,20 +48,19 @@ const GlobalSearch = () => {
           key: "global",
           value: search
         })
-
         router.push(newUrl, { scroll: false });
       } else {
         // this line of code was causing the issue where when ever
         // the search was empty it was redirecting to home page because 
         // previously it was set to '/'
-        let newUrl = pathname;
+        // let newUrl = pathname;
         if(query){
-          newUrl = removeKeysFromQuery({
-            params: searchParams.toString(),
-            keys: ["global","type"],
-          });
+            const newUrl = removeKeysFromQuery({
+              params: searchParams.toString(),
+              keys: ["global","type"],
+            })
+            router.push(newUrl, { scroll: false });
         }
-        router.push(newUrl, { scroll: false });
       }
     }, 300);
 
