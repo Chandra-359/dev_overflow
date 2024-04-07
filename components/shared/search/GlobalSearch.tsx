@@ -9,10 +9,11 @@ import GlobalResult from "./GlobalResult";
 const GlobalSearch = () => {
   const router = useRouter();
   const pathname = usePathname();
+  
   const searchParams = useSearchParams();
   const searchContainerRef = useRef(null);
 
-  const query = searchParams.get("global");
+  const query = searchParams.get("q");
   
 
   const [search, setSearch] = useState(query || "");
@@ -20,8 +21,11 @@ const GlobalSearch = () => {
 
   useEffect(() => {
     const handleOutsideClick=(e: any)=>{
-      // @ts-ignore
-      if(searchContainerRef.current && !searchContainerRef.current.contains(e.target)){
+      
+      if(searchContainerRef.current && 
+        // @ts-ignore
+        !searchContainerRef.current.contains(e.target)
+      ){
         setIsOpen(false)
         setSearch("")
       }
@@ -42,11 +46,15 @@ const GlobalSearch = () => {
         const newUrl = formUrlQuery({
           params: searchParams.toString(),
           key: "global",
-          value: search,
-        });
+          value: search
+        })
+
         router.push(newUrl, { scroll: false });
       } else {
-        let newUrl = "/";
+        // this line of code was causing the issue where when ever
+        // the search was empty it was redirecting to home page because 
+        // previously it was set to '/'
+        let newUrl = pathname;
         if(query){
           newUrl = removeKeysFromQuery({
             params: searchParams.toString(),
