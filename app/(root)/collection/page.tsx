@@ -7,6 +7,12 @@ import { getSavedQuestions } from "@/lib/actions/user.action";
 import { auth } from "@clerk/nextjs";
 import { SearchParamsProps } from "@/types";
 import Pagination from "@/components/shared/Pagination";
+import type { Metadata } from "next";
+
+export const metadata:Metadata={
+  title: "Collections | DevOverFlow ;)",
+  description: "View all your saved questions.",
+}
 
 export default async function Home({searchParams}: SearchParamsProps) {
   const { userId } = auth();

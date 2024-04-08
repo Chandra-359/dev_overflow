@@ -29,41 +29,34 @@ const LocalSearch = ({
 
   const [search, setSearch] = useState(query || "");
 
-  useEffect(()=>{
-    const delayDebounceFn = setTimeout(()=>{
-      if(search){
+  useEffect(() => {
+    const delayDebounceFn = setTimeout(() => {
+      if (search) {
         const newUrl = formUrlQuery({
           params: searchParams.toString(),
-          key:'q',
-          value:search
-        })
+          key: "q",
+          value: search,
+        });
 
         // console.log(newUrl);
         // /?q=njknjmo
-        router.push(newUrl, {scroll:false})
-      }else{
+        router.push(newUrl, { scroll: false });
+      } else {
         // console.log(route, pathname);
-        let newUrl='/'
-        if(route === pathname){
-        
-        newUrl = removeKeysFromQuery({
-          params: searchParams.toString(),
-          keys:['q']
-        })
+        // let newUrl=pathname;
+        if (route === pathname) {
+          const newUrl = removeKeysFromQuery({
+            params: searchParams.toString(),
+            keys: ["q"],
+          });
+          router.push(newUrl, { scroll: false });
+        }
       }
-
-        router.push(newUrl, {scroll:false})
       
-      }
-    },300)
+    }, 300);
 
-
-    return () => clearTimeout(delayDebounceFn)
-
-  },[search,router,pathname,query,searchParams,route])
-  
-  
-
+    return () => clearTimeout(delayDebounceFn);
+  }, [search, router, pathname, query, searchParams, route]);
 
   return (
     <div className="relative w-full">
@@ -84,7 +77,9 @@ const LocalSearch = ({
           type="text"
           placeholder={placeholder}
           value={search}
-          onChange={(e) => {setSearch(e.target.value)}}
+          onChange={(e) => {
+            setSearch(e.target.value);
+          }}
           className="paragraph-regular no-focus placeholder text-dark400_light700 border-none bg-transparent shadow-none outline-none"
         />
 

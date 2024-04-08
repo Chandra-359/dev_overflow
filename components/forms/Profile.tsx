@@ -18,6 +18,7 @@ FormMessage,
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea"
 import { Button } from "../ui/button";
+import { toast } from "../ui/use-toast";
 
 interface ProfileProps {
   clerkId: string;
@@ -56,6 +57,12 @@ const Profile = ({ clerkId, user }: ProfileProps) => {
         },
         path: pathname,
       });
+
+      toast({
+        title: "Profile Updated",
+        variant: "default",
+      })
+
       router.back();
     } catch (error) {
       console.log(error);

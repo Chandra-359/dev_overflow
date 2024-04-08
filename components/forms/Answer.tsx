@@ -17,6 +17,7 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { createAnswer } from "@/lib/actions/answer.action";
 import { usePathname } from "next/navigation";
+import { toast } from "../ui/use-toast";
 
 interface AnswerProps {
   authorId: string;
@@ -26,6 +27,7 @@ interface AnswerProps {
 
 const Answer = ({ authorId, questionId, question }: AnswerProps) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isSubmittingAI, setIsSubmittingAI] = useState(false);
   const editorRef = useRef(null);
   const { mode } = useTheme();
   const pathname = usePathname();
@@ -50,11 +52,17 @@ const Answer = ({ authorId, questionId, question }: AnswerProps) => {
         path: pathname,
       });
 
+      toast({
+        title: "Answer Posted",
+        variant: "default",
+      })
+
       form.reset();
       if (editorRef.current) {
         // @ts-ignore
         editorRef.current.setContent("");
       }
+
     } catch (error) {
       console.log(error);
     } finally {
@@ -63,20 +71,64 @@ const Answer = ({ authorId, questionId, question }: AnswerProps) => {
     console.log(values);
   };
 
+  const generateAIAnswer = async () => {
+    if (!authorId) return;
+
+    setIsSubmittingAI(true);
+
+    try {
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_SERVER_URL}/api/chatgpt`,
+        {
+          method: "POST",
+          body: JSON.stringify({ question }),
+        }
+      );
+
+      const aiAnswer = await response.json();
+      console.log(aiAnswer);
+      
+
+      // Convert plain text to HTML format
+
+      const formattedAnswer = aiAnswer.reply.replace(/\n/g, "<br />");
+
+      if (editorRef.current) {
+        const editor = editorRef.current as any;
+        editor.setContent(formattedAnswer);
+      }
+
+      // Toast...
+    } catch (error) {
+      console.log(error);
+    } finally {
+      setIsSubmittingAI(false);
+    }
+  };
+
   return (
     <div>
       <div className="flex flex-col justify-between sm:flex-row sm:items-center sm:gap-2">
         <h4 className="paragraph-semibold">Write your answer here</h4>
 
-        <Button className="btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500">
-          <Image
-            src="/assets/icons/stars.svg"
-            alt="stars"
-            width={12}
-            height={12}
-            className="object-contain"
-          />
-          Generate an AI answer
+        <Button
+          className="btn light-border-2 gap-1.5 rounded-md px-4 py-2.5 text-primary-500 shadow-none dark:text-primary-500"
+          onClick={generateAIAnswer}
+        >
+          {isSubmittingAI ? (
+            <>Generating...</>
+          ) : (
+            <>
+              <Image
+                src="/assets/icons/stars.svg"
+                alt="star"
+                width={12}
+                height={12}
+                className="object-contain"
+              />
+              Generate AI Answer
+            </>
+          )}
         </Button>
       </div>
       <Form {...form}>

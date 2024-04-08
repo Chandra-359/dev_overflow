@@ -22,6 +22,7 @@ import Image from "next/image";
 import { createQuestion, editQuestion } from "@/lib/actions/question.action";
 import { useRouter, usePathname } from "next/navigation";
 import { useTheme } from "@/context/ThemeProvider";
+import { toast } from "../ui/use-toast";
 
 interface QuestionProps {
   mongoUserId: string;
@@ -70,6 +71,10 @@ const Question = ({ mongoUserId, type, questionDetails }: QuestionProps) => {
           content: values.explanation,
           path: pathname,
         });
+        toast({
+          title: "Question Updated",
+          variant: "default",
+        })
 
         router.push(`/question/${parsedQuestionDetails.question._id}`);
       } else {
@@ -81,6 +86,12 @@ const Question = ({ mongoUserId, type, questionDetails }: QuestionProps) => {
           author: JSON.parse(mongoUserId),
           path: pathname,
         });
+
+        toast({
+          title: "Question Created",
+          variant: "default",
+        })
+
 
         // navigate to home page
         router.push("/");

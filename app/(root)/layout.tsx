@@ -2,6 +2,7 @@ import Navbar from "@/components/shared/navbar/Navbar";
 import React from "react";
 import LeftSideBar from "@/components/shared/navbar/LeftSideBar";
 import RightSideBar from "@/components/shared/navbar/RightSideBar";
+import { Toaster } from "@/components/ui/toaster";
 
 // sm: applies to screens ≥640px wide.
 // md: applies to screens ≥768px wide.
@@ -27,6 +28,7 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           <RightSideBar />
         </section>
       </div>
+      <Toaster/>
     </main>
   );
 };
