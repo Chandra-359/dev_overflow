@@ -18,6 +18,7 @@ export default async function Home({ searchParams }: SearchParamsProps) {
   });
   // console.log(`home page questions: ${result.questions[0].upvotes}`);
 
+
   return (
     <>
       <div className="flex w-full flex-col-reverse justify-between sm:flex-row sm:items-center">
