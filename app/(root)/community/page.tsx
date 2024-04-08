@@ -7,6 +7,12 @@ import UserCard from "@/components/shared/cards/UserCard";
 import NoResult from "@/components/shared/NoResult";
 import { SearchParamsProps } from "@/types";
 import Pagination from "@/components/shared/Pagination";
+import type { Metadata } from "next";
+
+export const metadata:Metadata={
+  title: "Community | DevOverFlow ;)",
+  description: "Connect with other developers in the community forum.",
+}
 
 const Page = async ({ searchParams }: SearchParamsProps) => {
   const result = await getAllUsers({

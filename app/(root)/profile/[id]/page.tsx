@@ -11,6 +11,12 @@ import ProfileLink from "@/components/shared/ProfileLink";
 import Stats from "@/components/shared/Stats";
 import QuestionTab from "@/components/shared/QuestionTab";
 import AnswerTab from "@/components/shared/AnswerTab";
+import type { Metadata } from "next";
+
+export const metadata:Metadata={
+  title: "Profile | DevOverFlow ;)",
+  description: "View your profile and activity on the community forum.",
+}
 
 const Page = async ({ params, searchParams }: URLProps) => {
   const { userId: clerkId } = auth();

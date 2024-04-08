@@ -3,6 +3,12 @@ import { getQuestionById } from "@/lib/actions/question.action";
 import { getUserById } from "@/lib/actions/user.action";
 import { auth } from "@clerk/nextjs";
 import React from "react";
+import type { Metadata } from "next";
+
+export const metadata:Metadata={
+  title: "Question Edit | DevOverFlow ;)",
+  description: "Edit a question on the community forum.",
+}
 
 interface EditProps {
   params: {

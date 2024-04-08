@@ -5,6 +5,12 @@ import LocalSearch from '@/components/shared/search/LocalSearch'
 import { getQuestionsByTagId } from '@/lib/actions/tag.action'
 import { URLProps } from '@/types'
 import React from 'react'
+import type { Metadata } from "next";
+
+export const metadata:Metadata={
+  title: "Tag | DevOverFlow ;)",
+  description: "Questions related to a specific tag.",
+}
 
 const Page = async ({params, searchParams}: URLProps) => {
 

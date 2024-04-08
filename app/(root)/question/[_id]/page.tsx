@@ -13,6 +13,12 @@ import { redirect } from "next/navigation";
 import AllAnswers from "@/components/shared/AllAnswers";
 import Votes from "@/components/shared/Votes";
 import { SearchParamsProps } from "@/types";
+import type { Metadata } from "next";
+
+export const metadata:Metadata={
+  title: "Help the poor guy out | DevOverFlow ;)",
+  description: "View the question and answers given by the community.",
+}
 
 interface ParamProp extends SearchParamsProps{
   params:{

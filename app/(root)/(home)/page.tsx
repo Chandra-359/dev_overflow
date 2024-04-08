@@ -9,6 +9,12 @@ import NoResult from "@/components/shared/NoResult";
 import { getQuestions } from "@/lib/actions/question.action";
 import { SearchParamsProps } from "@/types";
 import Pagination from "@/components/shared/Pagination";
+import type { Metadata } from "next";
+
+export const metadata:Metadata={
+  title: "Home | DevOverFlow ;)",
+  description: "Ask and answer questions on the community forum.",
+}
 
 export default async function Home({ searchParams }: SearchParamsProps) {
   const result = await getQuestions({
