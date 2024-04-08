@@ -6,24 +6,45 @@ import { HomePageFilters } from "@/constants/filters";
 import HomeFilters from "@/components/home/HomeFilters";
 import QuestionCard from "@/components/shared/cards/QuestionCard";
 import NoResult from "@/components/shared/NoResult";
-import { getQuestions } from "@/lib/actions/question.action";
+import {
+  getQuestions,
+  getRecommendedQuestions,
+} from "@/lib/actions/question.action";
 import { SearchParamsProps } from "@/types";
 import Pagination from "@/components/shared/Pagination";
 import type { Metadata } from "next";
+import { auth } from "@clerk/nextjs";
 
-export const metadata:Metadata={
+export const metadata: Metadata = {
   title: "Home | DevOverFlow ;)",
   description: "Ask and answer questions on the community forum.",
-}
+};
 
 export default async function Home({ searchParams }: SearchParamsProps) {
-  const result = await getQuestions({
-    searchQuery: searchParams.q,
-    filter: searchParams.filter,
-    page: searchParams.page ? +searchParams.page : 1,
-  });
-  // console.log(`home page questions: ${result.questions[0].upvotes}`);
+  const { userId } = auth();
+  let result;
 
+  if (searchParams?.filters === "recommended") {
+    if (userId) {
+      result = await getRecommendedQuestions({
+        userId,
+        page: searchParams.page ? +searchParams.page : 1,
+        searchQuery: searchParams.q,
+      });
+    } else {
+      result = {
+        questions: [],
+        isNext: false,
+      };
+    }
+  } else {
+    result = await getQuestions({
+      searchQuery: searchParams.q,
+      filter: searchParams.filter,
+      page: searchParams.page ? +searchParams.page : 1,
+    });
+    // console.log(`home page questions: ${result.questions[0].upvotes}`);
+  }
 
   return (
     <>
@@ -82,9 +103,9 @@ export default async function Home({ searchParams }: SearchParamsProps) {
       </div>
 
       <div className="mt-10">
-        <Pagination 
-        pageNumber={searchParams?.page ? +searchParams.page : 1}
-        isNext={result.isNext}
+        <Pagination
+          pageNumber={searchParams?.page ? +searchParams.page : 1}
+          isNext={result.isNext}
         />
       </div>
     </>
