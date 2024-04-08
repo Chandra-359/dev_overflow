@@ -17,6 +17,7 @@ import { Button } from "../ui/button";
 import Image from "next/image";
 import { createAnswer } from "@/lib/actions/answer.action";
 import { usePathname } from "next/navigation";
+import { toast } from "../ui/use-toast";
 
 interface AnswerProps {
   authorId: string;
@@ -51,11 +52,17 @@ const Answer = ({ authorId, questionId, question }: AnswerProps) => {
         path: pathname,
       });
 
+      toast({
+        title: "Answer Posted",
+        variant: "default",
+      })
+
       form.reset();
       if (editorRef.current) {
         // @ts-ignore
         editorRef.current.setContent("");
       }
+
     } catch (error) {
       console.log(error);
     } finally {
